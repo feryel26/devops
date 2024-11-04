@@ -27,6 +27,5 @@ public class Etudiant {
     private long capaciteFoyer;
 
 
-    public Etudiant(long l, String john, String doe) {
-    }
+
 }

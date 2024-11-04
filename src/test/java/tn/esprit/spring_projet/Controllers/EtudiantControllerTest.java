@@ -1,48 +1,48 @@
 package tn.esprit.spring_projet.Controllers;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tn.esprit.spring_projet.Services.EtudiantService;
 import tn.esprit.spring_projet.entities.Etudiant;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@RunWith(SpringRunner.class)
+@WebMvcTest(EtudiantController.class)
 public class EtudiantControllerTest {
 
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private EtudiantService etudiantService;
+
 
     @InjectMocks
     private EtudiantController etudiantController;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(etudiantController).build();
     }
 
     @Test
     public void testRetrieveAllEtudiants() throws Exception {
-        Etudiant etudiant1 = new Etudiant(1L, "John", "Doe");
-        Etudiant etudiant2 = new Etudiant(2L, "Jane", "Smith");
+        Etudiant etudiant1 = new Etudiant(1L, "John", "Doe", 123456789L, "Some School", new Date(), 100);
+        Etudiant etudiant2 = new Etudiant(2L, "Jane", "Smith", 987654321L, "Another School", new Date(), 150);
+
         List<Etudiant> etudiants = Arrays.asList(etudiant1, etudiant2);
 
         when(etudiantService.retrieveAllEtudiants()).thenReturn(etudiants);
@@ -50,24 +50,25 @@ public class EtudiantControllerTest {
         mockMvc.perform(get("/etudiants/alletudiants")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName").value("John"))
-                .andExpect(jsonPath("$[1].lastName").value("Smith"));
+                .andExpect(jsonPath("$[0].nomEt").value("John"))
+                .andExpect(jsonPath("$[1].prenomEt").value("Smith"));
 
         verify(etudiantService, times(1)).retrieveAllEtudiants();
     }
 
     @Test
     public void testRetrieveEtudiant() throws Exception {
-        Etudiant etudiant = new Etudiant(1L, "John", "Doe");
+        Etudiant etudiant = new Etudiant(1L, "John", "Doe", 123456789L, "Some School", new Date(), 100);
 
         when(etudiantService.retrieveEtudiant(1L)).thenReturn(etudiant);
 
         mockMvc.perform(get("/etudiants/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"));
+                .andExpect(jsonPath("$.nomEt").value("John"))
+                .andExpect(jsonPath("$.prenomEt").value("Doe"));
 
         verify(etudiantService, times(1)).retrieveEtudiant(1L);
     }
+
 }
